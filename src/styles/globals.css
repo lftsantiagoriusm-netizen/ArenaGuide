@@ -1,0 +1,61 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --background: oklch(0.985 0.002 275);
+  --foreground: oklch(0.18 0.012 275);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.012 275);
+  --primary: oklch(0.52 0.22 281);
+  --primary-foreground: oklch(0.99 0 0);
+  --muted-foreground: oklch(0.5 0.018 275);
+  --accent: oklch(0.95 0.014 280);
+  --border: oklch(0.91 0.008 275);
+}
+
+.dark {
+  --background: oklch(0.13 0.012 275);
+  --foreground: oklch(0.96 0.006 275);
+  --card: oklch(0.17 0.014 275);
+  --card-foreground: oklch(0.96 0.006 275);
+  --primary: oklch(0.68 0.19 281);
+  --primary-foreground: oklch(0.13 0.012 275);
+  --muted-foreground: oklch(0.69 0.018 275);
+  --accent: oklch(0.22 0.024 278);
+  --border: oklch(0.27 0.018 275);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --font-sans: var(--font-geist);
+  --font-mono: var(--font-geist-mono);
+}
+
+* {
+  border-color: var(--border);
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  min-height: 100dvh;
+  background: var(--background);
+  color: var(--foreground);
+}
+button,
+a,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+::selection {
+  background: color-mix(in oklab, var(--primary) 24%, transparent);
+}

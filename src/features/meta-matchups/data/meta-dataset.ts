@@ -1,0 +1,142 @@
+import type { BattleBuild } from "@/features/battle-simulator";
+import type { League } from "@/features/pokedex";
+import type { MetaDataset, MetaEntry } from "../domain/types";
+
+const build = (
+  pokemonId: string,
+  league: League,
+  fastMoveId: string,
+  chargedMove1Id: string,
+  chargedMove2Id: string,
+): BattleBuild => ({
+  pokemonId,
+  league,
+  attackIv: 0,
+  defenseIv: 15,
+  staminaIv: 15,
+  level: league === "master" ? 50 : 20,
+  fastMoveId,
+  chargedMove1Id,
+  chargedMove2Id,
+  shields: 1,
+});
+const entry = (
+  id: string,
+  name: string,
+  formId: string,
+  league: League,
+  weight: number,
+  configuredBuild: BattleBuild,
+  category?: string,
+): MetaEntry => ({
+  id,
+  speciesId: configuredBuild.pokemonId,
+  formId,
+  name,
+  league,
+  build: configuredBuild,
+  weight,
+  sourceVersion: "arena-meta-fixture-v1",
+  ...(category ? { category } : {}),
+});
+
+export const metaDataset: MetaDataset = {
+  version: "arena-meta-fixture-v1",
+  label: "ArenaGuide Meta Fixture v1",
+  provisional: true,
+  entries: [
+    entry(
+      "great-azumarill",
+      "Azumarill",
+      "azumarill-standard",
+      "great",
+      10,
+      build("azumarill", "great", "bubble", "ice-beam", "play-rough"),
+      "bulk",
+    ),
+    entry(
+      "great-clodsire",
+      "Clodsire",
+      "clodsire-standard",
+      "great",
+      9,
+      build("clodsire", "great", "poison-sting", "earthquake", "stone-edge"),
+      "generalist",
+    ),
+    entry(
+      "great-mandibuzz",
+      "Mandibuzz",
+      "mandibuzz-standard",
+      "great",
+      8,
+      build("mandibuzz", "great", "snarl", "foul-play", "aerial-ace"),
+      "bulk",
+    ),
+    entry(
+      "great-feraligatr",
+      "Feraligatr",
+      "feraligatr-standard",
+      "great",
+      7,
+      build("feraligatr", "great", "shadow-claw", "hydro-cannon", "ice-beam"),
+      "pressure",
+    ),
+    entry(
+      "ultra-registeel",
+      "Registeel",
+      "registeel-standard",
+      "ultra",
+      10,
+      build("registeel", "ultra", "lock-on", "focus-blast", "zap-cannon"),
+      "bulk",
+    ),
+    entry(
+      "ultra-talonflame",
+      "Talonflame",
+      "talonflame-standard",
+      "ultra",
+      8,
+      build("talonflame", "ultra", "incinerate", "brave-bird", "flame-charge"),
+      "pressure",
+    ),
+    entry(
+      "ultra-mandibuzz",
+      "Mandibuzz",
+      "mandibuzz-standard",
+      "ultra",
+      7,
+      build("mandibuzz", "ultra", "snarl", "foul-play", "dark-pulse"),
+      "bulk",
+    ),
+    entry(
+      "master-registeel",
+      "Registeel",
+      "registeel-standard",
+      "master",
+      5,
+      build("registeel", "master", "lock-on", "focus-blast", "zap-cannon"),
+      "fixture",
+    ),
+    entry(
+      "master-feraligatr",
+      "Feraligatr",
+      "feraligatr-standard",
+      "master",
+      4,
+      build("feraligatr", "master", "shadow-claw", "hydro-cannon", "ice-beam"),
+      "fixture",
+    ),
+    entry(
+      "master-talonflame",
+      "Talonflame",
+      "talonflame-standard",
+      "master",
+      3,
+      build("talonflame", "master", "incinerate", "brave-bird", "flame-charge"),
+      "fixture",
+    ),
+  ],
+};
+
+export const getMetaEntriesByLeague = (league: League): readonly MetaEntry[] =>
+  metaDataset.entries.filter((item) => item.league === league);

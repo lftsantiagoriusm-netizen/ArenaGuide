@@ -21,6 +21,10 @@ export function BattlePokemonForm({ label, build, onChange }: Props) {
     onChange({
       ...build,
       pokemonId: id,
+      formId:
+        selected?.forms.find(({ isDefault }) => isDefault)?.id ??
+        selected?.forms.at(0)?.id ??
+        "",
       fastMoveId: selected?.learnset.fastMoves.at(0)?.id ?? "",
       chargedMove1Id: selected?.learnset.chargedMoves.at(0)?.id ?? "",
       chargedMove2Id: selected?.learnset.chargedMoves.at(1)?.id ?? "",
@@ -38,6 +42,19 @@ export function BattlePokemonForm({ label, build, onChange }: Props) {
         {catalog.map((pokemon) => (
           <option key={pokemon.id} value={pokemon.id}>
             {pokemon.name}
+          </option>
+        ))}
+      </Select>
+      <Select
+        label="Forma"
+        value={build.formId ?? ""}
+        disabled={!species}
+        onChange={(event) => update("formId", event.target.value)}
+      >
+        <option value="">Selecciona</option>
+        {species?.forms.map((form) => (
+          <option key={form.id} value={form.id}>
+            {form.name}
           </option>
         ))}
       </Select>

@@ -81,6 +81,17 @@ describe("Team Builder domain", () => {
     assert.ok(issues.some(({ code }) => code === "duplicate-charged-move"));
   });
 
+  test("rejects a build above the selected league CP limit", () => {
+    const issues = validateBuild({
+      ...validBuild("feraligatr", "feraligatr-standard"),
+      level: 50,
+      fastMoveId: "shadow-claw",
+      chargedMove1Id: "hydro-cannon",
+      chargedMove2Id: "ice-beam",
+    });
+    assert.ok(issues.some(({ code }) => code === "cp-over-limit"));
+  });
+
   test("detects duplicate species and form", () => {
     const team = validTeam();
     const duplicateTeam: Team = {

@@ -5,8 +5,8 @@ import {
   type League,
 } from "@/features/pokedex";
 import type { PokemonBuild } from "@/features/team-builder";
+import { resolveCompetitiveBuild } from "@/features/competitive-data";
 import type { BattleMove, BattlePokemon } from "../domain/types";
-import { calculateEffectiveStats } from "../engine/stats";
 
 // Mechanics Fixture v1: normalized temporary values, not official Pokémon GO move data.
 const adaptFast = (move: FastMove): BattleMove => ({
@@ -44,16 +44,16 @@ export const adaptBuildToBattlePokemon = (
   const species = getPokemonById(build.pokemonId);
   if (!species)
     return { pokemon: null, error: "Selecciona un Pokémon válido." };
-  if (build.formId && !species.forms.some(({ id }) => id === build.formId))
-    return {
-      pokemon: null,
-      error: `La forma seleccionada de ${species.name} no es válida.`,
-    };
-  if (!species.eligibleLeagues.includes(league))
-    return {
-      pokemon: null,
-      error: `${species.name} no es elegible para esta liga.`,
-    };
+  const resolved = resolveCompetitiveBuild({
+    ...build,
+    formId:
+      build.formId ??
+      species.forms.find(({ isDefault }) => isDefault)?.id ??
+      species.forms[0]?.id ??
+      "",
+    league,
+  });
+  if (!resolved.ok) return { pokemon: null, error: resolved.error.message };
   const fast = species.learnset.fastMoves.find(
     ({ id }) => id === build.fastMoveId,
   );
@@ -63,35 +63,17 @@ export const adaptBuildToBattlePokemon = (
   const charged2 = species.learnset.chargedMoves.find(
     ({ id }) => id === build.chargedMove2Id,
   );
-  if (!fast || !charged1 || !charged2 || charged1.id === charged2.id)
+  if (!fast || !charged1 || !charged2)
     return {
       pokemon: null,
       error: `La configuración de movimientos de ${species.name} no es legal.`,
-    };
-  if (
-    [build.attackIv, build.defenseIv, build.staminaIv].some(
-      (iv) => !Number.isInteger(iv) || iv < 0 || iv > 15,
-    ) ||
-    build.level < 1 ||
-    build.level > 50 ||
-    build.level * 2 !== Math.round(build.level * 2)
-  )
-    return {
-      pokemon: null,
-      error: `Los IV o el nivel de ${species.name} no son válidos.`,
     };
   return {
     pokemon: {
       id: species.id,
       name: species.name,
       types: species.types,
-      stats: calculateEffectiveStats({
-        baseStats: species.baseStats,
-        attackIv: build.attackIv,
-        defenseIv: build.defenseIv,
-        staminaIv: build.staminaIv,
-        level: build.level,
-      }),
+      stats: resolved.build.stats,
       fastMove: adaptFast(fast),
       chargedMoves: [adaptCharged(charged1), adaptCharged(charged2)],
     },

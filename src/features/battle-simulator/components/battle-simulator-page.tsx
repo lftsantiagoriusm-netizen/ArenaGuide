@@ -17,6 +17,7 @@ import {
 } from "../index";
 import { BattlePokemonForm } from "./battle-pokemon-form";
 import { BattleResultCard } from "./battle-result-card";
+import { CompetitiveDataVersion } from "@/features/competitive-data/components/competitive-data-version";
 
 const emptyBuild = (): BattleBuild => ({
   pokemonId: "",
@@ -38,6 +39,14 @@ export function BattleSimulatorPage() {
   const [shields, setShields] = useState<0 | 1 | 2>(1);
   const [result, setResult] = useState<SimulationResult | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const resolvedA = adaptBuildToBattlePokemon(
+    { ...buildA, league, shields },
+    league,
+  );
+  const resolvedB = adaptBuildToBattlePokemon(
+    { ...buildB, league, shields },
+    league,
+  );
   const run = (): void => {
     const a = adaptBuildToBattlePokemon({ ...buildA, league, shields }, league);
     const b = adaptBuildToBattlePokemon({ ...buildB, league, shields }, league);
@@ -65,12 +74,7 @@ export function BattleSimulatorPage() {
           title="Battle Lab"
           description="Simula un combate individual determinístico sobre una línea temporal discreta."
         />
-        <div className="rounded-2xl border border-amber-500/25 bg-amber-500/5 p-4 text-sm text-amber-800 dark:text-amber-200">
-          <strong>Mechanics Fixture v1:</strong> poder, energía, turnos y
-          multiplicadores de nivel son valores provisionales normalizados; el
-          resultado es determinístico respecto a este dataset, no una
-          reproducción oficial todavía.
-        </div>
+        <CompetitiveDataVersion />
         <div className="grid gap-4 sm:grid-cols-2">
           <Select
             label="Liga"
@@ -111,7 +115,12 @@ export function BattleSimulatorPage() {
             }}
           />
         </div>
-        <Button size="lg" className="w-full sm:w-auto" onClick={run}>
+        <Button
+          size="lg"
+          className="w-full sm:w-auto"
+          onClick={run}
+          disabled={!resolvedA.pokemon || !resolvedB.pokemon}
+        >
           <Swords className="size-4" />
           Simular combate
         </Button>

@@ -34,7 +34,9 @@ export type ValidationIssueCode =
   | "duplicate-charged-move"
   | "ineligible-league"
   | "duplicate-pokemon"
-  | "incomplete-team";
+  | "incomplete-team"
+  | "cp-over-limit"
+  | "competitive-data";
 
 export type BuildField = keyof PokemonBuild | "team";
 

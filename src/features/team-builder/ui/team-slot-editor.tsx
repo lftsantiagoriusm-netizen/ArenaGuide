@@ -8,6 +8,7 @@ import type {
 } from "../domain/types";
 import { NumberField } from "./number-field";
 import { BuildCpSummary } from "@/features/competitive-data/components/build-cp-summary";
+import { CompetitiveMoveSummary } from "@/features/competitive-data/components/competitive-move-summary";
 
 const pokemonCatalog = getAllPokemon();
 
@@ -141,6 +142,10 @@ export function TeamSlotEditor({
           />
         </div>
         <BuildCpSummary build={build} />
+        <CompetitiveMoveSummary
+          fastMoveId={build.fastMoveId}
+          chargedMoveIds={[build.chargedMove1Id, build.chargedMove2Id]}
+        />
         <div className="grid gap-4 sm:grid-cols-3">
           <Select
             label="Movimiento rápido"

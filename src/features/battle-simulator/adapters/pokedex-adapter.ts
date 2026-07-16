@@ -1,32 +1,13 @@
-import {
-  getPokemonById,
-  type ChargedMove,
-  type FastMove,
-  type League,
-} from "@/features/pokedex";
+import { getPokemonById, type League } from "@/features/pokedex";
 import type { PokemonBuild } from "@/features/team-builder";
-import { resolveCompetitiveBuild } from "@/features/competitive-data";
-import type { BattleMove, BattlePokemon } from "../domain/types";
-
-// Mechanics Fixture v1: normalized temporary values, not official Pokémon GO move data.
-const adaptFast = (move: FastMove): BattleMove => ({
-  id: move.id,
-  name: move.name,
-  type: move.type,
-  kind: "fast",
-  power: 5,
-  energyDelta: 8,
-  turns: 2,
-});
-const adaptCharged = (move: ChargedMove): BattleMove => ({
-  id: move.id,
-  name: move.name,
-  type: move.type,
-  kind: "charged",
-  power: 70,
-  energyDelta: -50,
-  turns: 0,
-});
+import {
+  adaptCompetitiveChargedMoveToBattleMove,
+  adaptCompetitiveFastMoveToBattleMove,
+  resolveCompetitiveBuild,
+  resolveCompetitiveChargedMove,
+  resolveCompetitiveFastMove,
+} from "@/features/competitive-data";
+import type { BattlePokemon } from "../domain/types";
 
 export interface BattleBuild extends Omit<PokemonBuild, "formId"> {
   readonly formId?: string;
@@ -35,6 +16,7 @@ export interface BattleBuild extends Omit<PokemonBuild, "formId"> {
 export interface AdaptedBattle {
   readonly pokemon: BattlePokemon | null;
   readonly error: string | null;
+  readonly errorCode: "invalid-build" | "competitive-move-not-found" | null;
 }
 
 export const adaptBuildToBattlePokemon = (
@@ -43,7 +25,11 @@ export const adaptBuildToBattlePokemon = (
 ): AdaptedBattle => {
   const species = getPokemonById(build.pokemonId);
   if (!species)
-    return { pokemon: null, error: "Selecciona un Pokémon válido." };
+    return {
+      pokemon: null,
+      error: "Selecciona un Pokémon válido.",
+      errorCode: "invalid-build",
+    };
   const resolved = resolveCompetitiveBuild({
     ...build,
     formId:
@@ -53,20 +39,27 @@ export const adaptBuildToBattlePokemon = (
       "",
     league,
   });
-  if (!resolved.ok) return { pokemon: null, error: resolved.error.message };
-  const fast = species.learnset.fastMoves.find(
-    ({ id }) => id === build.fastMoveId,
-  );
-  const charged1 = species.learnset.chargedMoves.find(
-    ({ id }) => id === build.chargedMove1Id,
-  );
-  const charged2 = species.learnset.chargedMoves.find(
-    ({ id }) => id === build.chargedMove2Id,
-  );
-  if (!fast || !charged1 || !charged2)
+  if (!resolved.ok)
     return {
       pokemon: null,
-      error: `La configuración de movimientos de ${species.name} no es legal.`,
+      error: resolved.error.message,
+      errorCode: "invalid-build",
+    };
+  const fast = resolveCompetitiveFastMove(build.fastMoveId);
+  const charged1 = resolveCompetitiveChargedMove(build.chargedMove1Id);
+  const charged2 = resolveCompetitiveChargedMove(build.chargedMove2Id);
+  const missingMove = [fast, charged1, charged2].find((move) => !move.ok);
+  if (missingMove && !missingMove.ok)
+    return {
+      pokemon: null,
+      error: missingMove.error.message,
+      errorCode: "competitive-move-not-found",
+    };
+  if (!fast.ok || !charged1.ok || !charged2.ok)
+    return {
+      pokemon: null,
+      error: "No fue posible resolver los movimientos competitivos.",
+      errorCode: "competitive-move-not-found",
     };
   return {
     pokemon: {
@@ -74,9 +67,13 @@ export const adaptBuildToBattlePokemon = (
       name: species.name,
       types: species.types,
       stats: resolved.build.stats,
-      fastMove: adaptFast(fast),
-      chargedMoves: [adaptCharged(charged1), adaptCharged(charged2)],
+      fastMove: adaptCompetitiveFastMoveToBattleMove(fast.move),
+      chargedMoves: [
+        adaptCompetitiveChargedMoveToBattleMove(charged1.move),
+        adaptCompetitiveChargedMoveToBattleMove(charged2.move),
+      ],
     },
     error: null,
+    errorCode: null,
   };
 };

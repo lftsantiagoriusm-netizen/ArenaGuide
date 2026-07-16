@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { metaDataset } from "@/features/meta-matchups";
-import { competitiveDataMetadata } from "@/features/competitive-data";
+import {
+  competitiveDataMetadata,
+  competitiveMoveDatasetMetadata,
+} from "@/features/competitive-data";
 import {
   calculateCoverageRate,
   calculateRedundantCoverage,
@@ -229,13 +232,29 @@ describe("input compatibility", () => {
       createTeamFingerprint(team, "arena-competitive-data-v2"),
     );
   });
+  test("fingerprint changes with the competitive move dataset version", () => {
+    const team = validTeam();
+    assert.notEqual(
+      createTeamFingerprint(
+        team,
+        competitiveDataMetadata.datasetVersion,
+        "arena-competitive-moves-v1",
+      ),
+      createTeamFingerprint(
+        team,
+        competitiveDataMetadata.datasetVersion,
+        "arena-competitive-moves-v2",
+      ),
+    );
+  });
   test("compatibility key includes shields", () => {
     const base = {
       teamFingerprint: "team",
       league: "great" as const,
-      engineVersion: "battle-engine-competitive-data-v1" as const,
+      engineVersion: "battle-engine-competitive-moves-v1" as const,
       metaVersion: "arena-meta-fixture-v1" as const,
       competitiveDataVersion: competitiveDataMetadata.datasetVersion,
+      competitiveMoveDataVersion: competitiveMoveDatasetMetadata.datasetVersion,
     };
     assert.notEqual(
       createCoverageCompatibilityKey({ ...base, shields: 0 }),

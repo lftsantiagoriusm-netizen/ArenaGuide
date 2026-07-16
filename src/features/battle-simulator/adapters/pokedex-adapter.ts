@@ -29,6 +29,7 @@ const adaptCharged = (move: ChargedMove): BattleMove => ({
 });
 
 export interface BattleBuild extends Omit<PokemonBuild, "formId"> {
+  readonly formId?: string;
   readonly shields: 0 | 1 | 2;
 }
 export interface AdaptedBattle {
@@ -43,6 +44,11 @@ export const adaptBuildToBattlePokemon = (
   const species = getPokemonById(build.pokemonId);
   if (!species)
     return { pokemon: null, error: "Selecciona un Pokémon válido." };
+  if (build.formId && !species.forms.some(({ id }) => id === build.formId))
+    return {
+      pokemon: null,
+      error: `La forma seleccionada de ${species.name} no es válida.`,
+    };
   if (!species.eligibleLeagues.includes(league))
     return {
       pokemon: null,

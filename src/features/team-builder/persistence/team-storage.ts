@@ -4,8 +4,12 @@ import type { Team } from "../domain/types";
 const STORAGE_KEY = "arena-guide:team-builder:v1";
 
 export const loadTeam = (storage: Pick<Storage, "getItem">): Team | null => {
-  const serialized = storage.getItem(STORAGE_KEY);
-  return serialized ? deserializeTeam(serialized) : null;
+  try {
+    const serialized = storage.getItem(STORAGE_KEY);
+    return serialized ? deserializeTeam(serialized) : null;
+  } catch {
+    return null;
+  }
 };
 
 export const saveTeam = (

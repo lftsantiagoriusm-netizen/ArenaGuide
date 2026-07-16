@@ -7,6 +7,7 @@ export {
   validateTeam,
 } from "./domain/team-builder";
 export { deserializeTeam, serializeTeam } from "./domain/team-serialization";
+export { loadTeam } from "./persistence/team-storage";
 export type {
   PokemonBuild,
   Team,

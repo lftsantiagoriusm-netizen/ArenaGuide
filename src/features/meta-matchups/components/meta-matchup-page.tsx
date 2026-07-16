@@ -5,7 +5,10 @@ import { ChartNoAxesColumnIncreasing } from "lucide-react";
 import Link from "next/link";
 import type { League } from "@/features/pokedex";
 import type { BattleBuild } from "@/features/battle-simulator";
-import { competitiveDataMetadata } from "@/features/competitive-data";
+import {
+  competitiveDataMetadata,
+  competitiveMoveDatasetMetadata,
+} from "@/features/competitive-data";
 import { CompetitiveDataVersion } from "@/features/competitive-data/components/competitive-data-version";
 import { BattlePokemonForm } from "@/features/battle-simulator/components/battle-pokemon-form";
 import { Container } from "@/components/common/container";
@@ -80,6 +83,8 @@ export function MetaMatchupPage() {
       saveMatrixSettings(window.localStorage, {
         version: 1,
         competitiveDataVersion: competitiveDataMetadata.datasetVersion,
+        competitiveMoveDataVersion:
+          competitiveMoveDatasetMetadata.datasetVersion,
         build,
         league,
         shields,

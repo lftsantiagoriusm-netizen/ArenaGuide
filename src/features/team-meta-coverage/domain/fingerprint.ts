@@ -2,15 +2,23 @@ import type { League } from "@/features/pokedex";
 import type { Team } from "@/features/team-builder";
 import type { BattleEngineVersion } from "./types";
 import type { MetaDatasetVersion } from "@/features/meta-matchups";
-import type { CompetitiveDatasetVersion } from "@/features/competitive-data";
-import { competitiveDataMetadata } from "@/features/competitive-data";
+import type {
+  CompetitiveDatasetVersion,
+  CompetitiveMoveDataVersion,
+} from "@/features/competitive-data";
+import {
+  competitiveDataMetadata,
+  competitiveMoveDatasetMetadata,
+} from "@/features/competitive-data";
 
 export const createTeamFingerprint = (
   team: Team,
   competitiveDataVersion: CompetitiveDatasetVersion = competitiveDataMetadata.datasetVersion,
+  competitiveMoveDataVersion: CompetitiveMoveDataVersion = competitiveMoveDatasetMetadata.datasetVersion,
 ): string =>
   JSON.stringify([
     competitiveDataVersion,
+    competitiveMoveDataVersion,
     team.slots.map(({ id, build }) => [
       id,
       build.pokemonId,
@@ -33,12 +41,14 @@ export const createCoverageCompatibilityKey = (input: {
   readonly engineVersion: BattleEngineVersion;
   readonly metaVersion: MetaDatasetVersion;
   readonly competitiveDataVersion: CompetitiveDatasetVersion;
+  readonly competitiveMoveDataVersion: CompetitiveMoveDataVersion;
 }): string =>
   JSON.stringify([
     1,
     input.engineVersion,
     input.metaVersion,
     input.competitiveDataVersion,
+    input.competitiveMoveDataVersion,
     input.league,
     input.shields,
     input.teamFingerprint,

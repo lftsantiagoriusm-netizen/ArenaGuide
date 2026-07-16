@@ -2,6 +2,7 @@ import { getAllPokemon, getPokemonById } from "@/features/pokedex";
 import { Select } from "@/components/ui/select";
 import type { BattleBuild } from "../adapters/pokedex-adapter";
 import { BuildCpSummary } from "@/features/competitive-data/components/build-cp-summary";
+import { CompetitiveMoveSummary } from "@/features/competitive-data/components/competitive-move-summary";
 
 const catalog = getAllPokemon();
 
@@ -133,6 +134,10 @@ export function BattlePokemonForm({ label, build, onChange }: Props) {
         </Select>
       </div>
       <BuildCpSummary build={{ ...build, formId: build.formId ?? "" }} />
+      <CompetitiveMoveSummary
+        fastMoveId={build.fastMoveId}
+        chargedMoveIds={[build.chargedMove1Id, build.chargedMove2Id]}
+      />
     </fieldset>
   );
 }

@@ -1,7 +1,10 @@
 import { BATTLE_ENGINE_VERSION } from "@/features/battle-simulator";
 import { metaDataset } from "@/features/meta-matchups";
 import type { League } from "@/features/pokedex";
-import { competitiveDataMetadata } from "@/features/competitive-data";
+import {
+  competitiveDataMetadata,
+  competitiveMoveDatasetMetadata,
+} from "@/features/competitive-data";
 import type {
   StoredTeamCoverage,
   TeamCoverageFilter,
@@ -55,6 +58,8 @@ export const parseStoredCoverageResult = (
       value.schemaVersion !== 1 ||
       value.engineVersion !== BATTLE_ENGINE_VERSION ||
       value.competitiveDataVersion !== competitiveDataMetadata.datasetVersion ||
+      value.competitiveMoveDataVersion !==
+        competitiveMoveDatasetMetadata.datasetVersion ||
       value.metaVersion !== metaDataset.version ||
       typeof value.computedAt !== "string" ||
       typeof value.teamFingerprint !== "string" ||
@@ -82,6 +87,8 @@ export const isStoredCoverageCompatible = (
   stored.schemaVersion === 1 &&
   stored.engineVersion === BATTLE_ENGINE_VERSION &&
   stored.competitiveDataVersion === competitiveDataMetadata.datasetVersion &&
+  stored.competitiveMoveDataVersion ===
+    competitiveMoveDatasetMetadata.datasetVersion &&
   stored.metaVersion === metaDataset.version &&
   stored.compatibilityKey === compatibilityKey &&
   stored.result !== null &&

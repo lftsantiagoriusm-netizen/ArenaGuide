@@ -3,7 +3,10 @@ import type {
   BattleBuild,
   SimulationResult,
 } from "@/features/battle-simulator";
-import type { CompetitiveDatasetVersion } from "@/features/competitive-data";
+import type {
+  CompetitiveDatasetVersion,
+  CompetitiveMoveDataVersion,
+} from "@/features/competitive-data";
 
 export type MetaDatasetVersion = "arena-meta-fixture-v1";
 export type MatchupClassification =
@@ -88,6 +91,7 @@ export interface BatchSimulationProgress {
 export interface MatrixSettings {
   readonly version: 1;
   readonly competitiveDataVersion: CompetitiveDatasetVersion;
+  readonly competitiveMoveDataVersion: CompetitiveMoveDataVersion;
   readonly build: BattleBuild;
   readonly league: League;
   readonly shields: 0 | 1 | 2;

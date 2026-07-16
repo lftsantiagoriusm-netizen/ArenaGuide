@@ -2,7 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BATTLE_ENGINE_VERSION } from "@/features/battle-simulator";
-import { competitiveDataMetadata } from "@/features/competitive-data";
+import {
+  competitiveDataMetadata,
+  competitiveMoveDatasetMetadata,
+} from "@/features/competitive-data";
 import { getMetaEntriesByLeague, metaDataset } from "@/features/meta-matchups";
 import type { League } from "@/features/pokedex";
 import { createEmptyTeam, loadTeam, type Team } from "@/features/team-builder";
@@ -49,6 +52,8 @@ export function useTeamMetaCoverage() {
         engineVersion: BATTLE_ENGINE_VERSION,
         metaVersion: metaDataset.version,
         competitiveDataVersion: competitiveDataMetadata.datasetVersion,
+        competitiveMoveDataVersion:
+          competitiveMoveDatasetMetadata.datasetVersion,
       }),
     [fingerprint, league, shields],
   );
@@ -69,6 +74,7 @@ export function useTeamMetaCoverage() {
       engineVersion: BATTLE_ENGINE_VERSION,
       metaVersion: metaDataset.version,
       competitiveDataVersion: competitiveDataMetadata.datasetVersion,
+      competitiveMoveDataVersion: competitiveMoveDatasetMetadata.datasetVersion,
     });
     setTeam(restoredTeam);
     setLeague(restoredLeague);
@@ -89,6 +95,7 @@ export function useTeamMetaCoverage() {
       engineVersion: BATTLE_ENGINE_VERSION,
       metaVersion: metaDataset.version,
       competitiveDataVersion: competitiveDataMetadata.datasetVersion,
+      competitiveMoveDataVersion: competitiveMoveDatasetMetadata.datasetVersion,
       computedAt,
       teamFingerprint: fingerprint,
       compatibilityKey,

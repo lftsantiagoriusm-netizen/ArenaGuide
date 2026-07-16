@@ -14,6 +14,8 @@ export { runMatchupMatrix } from "./services/run-matchup-matrix";
 export type {
   MetaEntry,
   MetaDataset,
+  MetaDatasetVersion,
+  BatchSimulationProgress,
   MatchupMatrix,
   MatchupSimulationResult,
   MatchupClassification,

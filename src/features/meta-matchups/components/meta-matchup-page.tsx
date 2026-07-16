@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChartNoAxesColumnIncreasing } from "lucide-react";
+import Link from "next/link";
 import type { League } from "@/features/pokedex";
 import type { BattleBuild } from "@/features/battle-simulator";
 import { BattlePokemonForm } from "@/features/battle-simulator/components/battle-pokemon-form";
@@ -136,6 +137,9 @@ export function MetaMatchupPage() {
           title="Matriz contra el Meta"
           description="Compara un build contra un fixture local mediante el motor determinístico 1v1 de ArenaGuide."
         />
+        <Button asChild variant="secondary" className="w-full sm:w-auto">
+          <Link href="/meta/team">Analizar cobertura del equipo</Link>
+        </Button>
         <div className="rounded-2xl border border-amber-500/25 bg-amber-500/5 p-4 text-sm text-amber-800 dark:text-amber-200">
           <strong>{metaDataset.label}:</strong> catálogo pequeño y provisional;
           no representa un ranking oficial actualizado.

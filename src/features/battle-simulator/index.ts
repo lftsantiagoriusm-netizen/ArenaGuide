@@ -6,6 +6,7 @@ export { calculateEffectiveStats } from "./engine/stats";
 export { getTypeEffectiveness } from "./engine/type-chart";
 export { firstChargedShieldStrategy } from "./strategies/first-charged-shield";
 export { BATTLE_ENGINE_VERSION } from "./domain/version";
+export { createBattleSnapshot, summarizeBattleDamage } from "./domain/evidence";
 export type {
   BattleMove,
   BattlePokemon,

@@ -2,8 +2,8 @@
 
 El motor es puro e independiente de React. `adapters/` traduce builds del producto al contrato de combate; `engine/` contiene estadísticas, tipos, daño y resolución temporal; `strategies/` encapsula decisiones sustituibles.
 
-## Mechanics Fixture v1
+## Deterministic engine
 
-El Pokédex todavía no incluye poder, energía o duración de movimientos, ni una tabla completa de multiplicadores por nivel. Esta versión usa valores normalizados temporales: movimientos rápidos con 5 de poder, 8 de energía y 2 turnos; cargados con 70 de poder y coste 50. Los multiplicadores de nivel se interpolan entre anclas documentadas en `stats.ts`.
+El motor consume estadísticas competitivas y movimientos PvP locales versionados. La fórmula de daño vive exclusivamente en `engine/damage.ts`; las etapas de ataque y defensa se aplican como modificadores de esa entrada, sin mutar CP ni estadísticas base.
 
-Los resultados son reproducibles y determinísticos respecto a este fixture, pero no deben presentarse como simulaciones oficiales hasta sustituirlo por un dataset PvP versionado y validado.
+Solo se ejecutan efectos de movimientos con probabilidad 100%. Los efectos probabilísticos quedan registrados como evidencia no aplicada: el motor no usa RNG. Cada evento relevante incluye snapshots compactos para auditar HP, energía, escudos y etapas, y el resultado agrega daño rápido y cargado por combatiente.

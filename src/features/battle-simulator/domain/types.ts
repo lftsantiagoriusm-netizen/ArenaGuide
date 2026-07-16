@@ -1,4 +1,9 @@
 import type { League, PokemonType } from "@/features/pokedex";
+import type {
+  BattleStat,
+  MoveEffectSupport,
+  StatStages,
+} from "@/features/competitive-data";
 
 export type CombatantId = "a" | "b";
 export type BattleMoveKind = "fast" | "charged";
@@ -42,6 +47,25 @@ export interface CombatantState {
   fastMovesUsed: number;
   chargedMovesUsed: number;
   shieldsUsed: number;
+  statStages: StatStages;
+}
+
+export interface CombatantSnapshot {
+  readonly hp: number;
+  readonly energy: number;
+  readonly shields: number;
+  readonly statStages: StatStages;
+}
+export type BattleSnapshot = Readonly<Record<CombatantId, CombatantSnapshot>>;
+export type DamageCategory = "fast" | "charged";
+export interface BattleEventEffect {
+  readonly moveId: string;
+  readonly target: CombatantId;
+  readonly stat: BattleStat;
+  readonly requestedStages: number;
+  readonly appliedStages: number;
+  readonly support: MoveEffectSupport;
+  readonly reason?: "probabilistic" | "unsupported" | "stage-limit";
 }
 
 export interface BattleState {
@@ -56,8 +80,11 @@ export type BattleEventType =
   | "energy_gained"
   | "charged_move_ready"
   | "charged_move_used"
+  | "energy_spent"
   | "shield_used"
   | "damage_applied"
+  | "move_effect_applied"
+  | "move_effect_rejected"
   | "pokemon_fainted"
   | "battle_finished";
 
@@ -68,6 +95,10 @@ export interface BattleEvent {
   readonly target?: CombatantId;
   readonly moveId?: string;
   readonly amount?: number;
+  readonly damageCategory?: DamageCategory;
+  readonly before?: BattleSnapshot;
+  readonly after?: BattleSnapshot;
+  readonly effect?: BattleEventEffect;
   readonly message: string;
 }
 
@@ -104,10 +135,20 @@ export interface SimulationResult {
   readonly certainty: "deterministic";
   readonly explanation: readonly string[];
   readonly error?: SimulationError;
+  readonly damage: Readonly<Record<CombatantId, BattleDamageSummary>>;
+}
+
+export interface BattleDamageSummary {
+  readonly fast: number;
+  readonly charged: number;
+  readonly total: number;
 }
 
 export interface DamageCalculation {
   readonly damage: number;
   readonly stab: number;
   readonly effectiveness: number;
+  readonly attack: number;
+  readonly defense: number;
+  readonly rawDamage: number;
 }

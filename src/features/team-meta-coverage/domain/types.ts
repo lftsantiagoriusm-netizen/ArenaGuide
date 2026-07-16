@@ -13,6 +13,7 @@ import type { BATTLE_ENGINE_VERSION } from "@/features/battle-simulator";
 import type {
   CompetitiveDatasetVersion,
   CompetitiveMoveDataVersion,
+  CompetitiveMoveEffectDataVersion,
 } from "@/features/competitive-data";
 
 export type TeamCoverageClassification =
@@ -114,6 +115,7 @@ export interface StoredTeamCoverage {
   readonly engineVersion: BattleEngineVersion;
   readonly competitiveDataVersion: CompetitiveDatasetVersion;
   readonly competitiveMoveDataVersion: CompetitiveMoveDataVersion;
+  readonly competitiveMoveEffectDataVersion: CompetitiveMoveEffectDataVersion;
   readonly metaVersion: MetaDatasetVersion;
   readonly computedAt: string;
   readonly teamFingerprint: string;

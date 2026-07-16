@@ -4,6 +4,7 @@ import { metaDataset } from "@/features/meta-matchups";
 import {
   competitiveDataMetadata,
   competitiveMoveDatasetMetadata,
+  competitiveMoveEffectDatasetMetadata,
 } from "@/features/competitive-data";
 import {
   calculateCoverageRate,
@@ -247,14 +248,33 @@ describe("input compatibility", () => {
       ),
     );
   });
+  test("fingerprint changes with the move effect dataset version", () => {
+    const team = validTeam();
+    assert.notEqual(
+      createTeamFingerprint(
+        team,
+        competitiveDataMetadata.datasetVersion,
+        competitiveMoveDatasetMetadata.datasetVersion,
+        "arena-competitive-move-effects-v1",
+      ),
+      createTeamFingerprint(
+        team,
+        competitiveDataMetadata.datasetVersion,
+        competitiveMoveDatasetMetadata.datasetVersion,
+        "arena-competitive-move-effects-v2",
+      ),
+    );
+  });
   test("compatibility key includes shields", () => {
     const base = {
       teamFingerprint: "team",
       league: "great" as const,
-      engineVersion: "battle-engine-competitive-moves-v1" as const,
+      engineVersion: "battle-engine-deterministic-effects-v1" as const,
       metaVersion: "arena-meta-fixture-v1" as const,
       competitiveDataVersion: competitiveDataMetadata.datasetVersion,
       competitiveMoveDataVersion: competitiveMoveDatasetMetadata.datasetVersion,
+      competitiveMoveEffectDataVersion:
+        competitiveMoveEffectDatasetMetadata.datasetVersion,
     };
     assert.notEqual(
       createCoverageCompatibilityKey({ ...base, shields: 0 }),

@@ -8,6 +8,7 @@ import type { BattleBuild } from "@/features/battle-simulator";
 import {
   competitiveDataMetadata,
   competitiveMoveDatasetMetadata,
+  competitiveMoveEffectDatasetMetadata,
 } from "@/features/competitive-data";
 import { CompetitiveDataVersion } from "@/features/competitive-data/components/competitive-data-version";
 import { BattlePokemonForm } from "@/features/battle-simulator/components/battle-pokemon-form";
@@ -85,6 +86,8 @@ export function MetaMatchupPage() {
         competitiveDataVersion: competitiveDataMetadata.datasetVersion,
         competitiveMoveDataVersion:
           competitiveMoveDatasetMetadata.datasetVersion,
+        competitiveMoveEffectDataVersion:
+          competitiveMoveEffectDatasetMetadata.datasetVersion,
         build,
         league,
         shields,

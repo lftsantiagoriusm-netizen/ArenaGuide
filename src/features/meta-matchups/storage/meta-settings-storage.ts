@@ -3,6 +3,7 @@ import type { BattleBuild } from "@/features/battle-simulator";
 import {
   competitiveDataMetadata,
   competitiveMoveDatasetMetadata,
+  competitiveMoveEffectDatasetMetadata,
 } from "@/features/competitive-data";
 import type {
   MatchupFilter,
@@ -72,6 +73,8 @@ export const deserializeMatrixSettings = (
         competitiveDataMetadata.datasetVersion ||
       parsed.competitiveMoveDataVersion !==
         competitiveMoveDatasetMetadata.datasetVersion ||
+      parsed.competitiveMoveEffectDataVersion !==
+        competitiveMoveEffectDatasetMetadata.datasetVersion ||
       typeof parsed.league !== "string" ||
       !leagues.includes(parsed.league as League) ||
       ![0, 1, 2].includes(Number(parsed.shields)) ||

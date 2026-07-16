@@ -6,6 +6,7 @@ import type {
 import type {
   CompetitiveDatasetVersion,
   CompetitiveMoveDataVersion,
+  CompetitiveMoveEffectDataVersion,
 } from "@/features/competitive-data";
 
 export type MetaDatasetVersion = "arena-meta-fixture-v1";
@@ -92,6 +93,7 @@ export interface MatrixSettings {
   readonly version: 1;
   readonly competitiveDataVersion: CompetitiveDatasetVersion;
   readonly competitiveMoveDataVersion: CompetitiveMoveDataVersion;
+  readonly competitiveMoveEffectDataVersion: CompetitiveMoveEffectDataVersion;
   readonly build: BattleBuild;
   readonly league: League;
   readonly shields: 0 | 1 | 2;

@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { describe, test } from "node:test";
 import { BATTLE_ENGINE_VERSION } from "@/features/battle-simulator";
 import { metaDataset } from "@/features/meta-matchups";
+import { competitiveDataMetadata } from "@/features/competitive-data";
 import { summarizeTeamCoverage } from "../domain/coverage";
 import {
   createCoverageCompatibilityKey,
@@ -25,11 +26,13 @@ const storedFixture = (): StoredTeamCoverage => {
     shields: 1,
     engineVersion: BATTLE_ENGINE_VERSION,
     metaVersion: metaDataset.version,
+    competitiveDataVersion: competitiveDataMetadata.datasetVersion,
   });
   return {
     schemaVersion: 1,
     engineVersion: BATTLE_ENGINE_VERSION,
     metaVersion: metaDataset.version,
+    competitiveDataVersion: competitiveDataMetadata.datasetVersion,
     computedAt: "2026-07-16T00:00:00.000Z",
     teamFingerprint,
     compatibilityKey,
@@ -96,6 +99,13 @@ describe("team coverage persistence", () => {
     parsed.metaVersion = "other";
     assert.equal(parseStoredCoverageResult(JSON.stringify(parsed)), null);
   });
+  test("discards incompatible competitiveDataVersion", () => {
+    const parsed = JSON.parse(
+      serializeStoredCoverage(storedFixture()),
+    ) as Record<string, unknown>;
+    parsed.competitiveDataVersion = "arena-competitive-data-v999";
+    assert.equal(parseStoredCoverageResult(JSON.stringify(parsed)), null);
+  });
   test("rejects another team fingerprint", () =>
     assert.equal(isStoredCoverageCompatible(storedFixture(), "other"), false));
   test("rejects another league", () => {
@@ -106,6 +116,7 @@ describe("team coverage persistence", () => {
       shields: 1,
       engineVersion: BATTLE_ENGINE_VERSION,
       metaVersion: metaDataset.version,
+      competitiveDataVersion: competitiveDataMetadata.datasetVersion,
     });
     assert.equal(isStoredCoverageCompatible(fixture, key), false);
   });
@@ -117,6 +128,7 @@ describe("team coverage persistence", () => {
       shields: 2,
       engineVersion: BATTLE_ENGINE_VERSION,
       metaVersion: metaDataset.version,
+      competitiveDataVersion: competitiveDataMetadata.datasetVersion,
     });
     assert.equal(isStoredCoverageCompatible(fixture, key), false);
   });

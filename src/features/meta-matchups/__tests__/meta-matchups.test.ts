@@ -21,6 +21,7 @@ import {
   serializeMatrixSettings,
 } from "../storage/meta-settings-storage";
 import type { MatchupSimulationResult, MatrixSettings } from "../domain/types";
+import { competitiveDataMetadata } from "@/features/competitive-data";
 
 const analyzedBuild: BattleBuild = {
   pokemonId: "azumarill",
@@ -259,6 +260,7 @@ describe("summary and presentation operations", () => {
 describe("settings persistence", () => {
   const settings: MatrixSettings = {
     version: 1,
+    competitiveDataVersion: competitiveDataMetadata.datasetVersion,
     build: analyzedBuild,
     league: "great",
     shields: 1,
@@ -273,5 +275,13 @@ describe("settings persistence", () => {
   test("recovers from corrupt settings", () => {
     assert.equal(deserializeMatrixSettings("bad"), null);
     assert.equal(deserializeMatrixSettings('{"version":2}'), null);
+  });
+  test("discards settings from another competitive dataset", () => {
+    const parsed = JSON.parse(serializeMatrixSettings(settings)) as Record<
+      string,
+      unknown
+    >;
+    parsed.competitiveDataVersion = "arena-competitive-data-v999";
+    assert.equal(deserializeMatrixSettings(JSON.stringify(parsed)), null);
   });
 });

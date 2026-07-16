@@ -1,5 +1,6 @@
 import type { League } from "@/features/pokedex";
 import type { BattleBuild } from "@/features/battle-simulator";
+import { competitiveDataMetadata } from "@/features/competitive-data";
 import type {
   MatchupFilter,
   MatchupSortOption,
@@ -64,6 +65,8 @@ export const deserializeMatrixSettings = (
     if (
       !isRecord(parsed) ||
       parsed.version !== 1 ||
+      parsed.competitiveDataVersion !==
+        competitiveDataMetadata.datasetVersion ||
       typeof parsed.league !== "string" ||
       !leagues.includes(parsed.league as League) ||
       ![0, 1, 2].includes(Number(parsed.shields)) ||

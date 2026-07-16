@@ -1,1 +1,2 @@
-export const BATTLE_ENGINE_VERSION = "battle-engine-fixture-v1" as const;
+export const BATTLE_ENGINE_VERSION =
+  "battle-engine-competitive-data-v1" as const;

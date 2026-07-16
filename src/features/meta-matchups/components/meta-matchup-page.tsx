@@ -5,6 +5,8 @@ import { ChartNoAxesColumnIncreasing } from "lucide-react";
 import Link from "next/link";
 import type { League } from "@/features/pokedex";
 import type { BattleBuild } from "@/features/battle-simulator";
+import { competitiveDataMetadata } from "@/features/competitive-data";
+import { CompetitiveDataVersion } from "@/features/competitive-data/components/competitive-data-version";
 import { BattlePokemonForm } from "@/features/battle-simulator/components/battle-pokemon-form";
 import { Container } from "@/components/common/container";
 import { PageHeader } from "@/components/common/page-header";
@@ -77,6 +79,7 @@ export function MetaMatchupPage() {
     if (hydrated)
       saveMatrixSettings(window.localStorage, {
         version: 1,
+        competitiveDataVersion: competitiveDataMetadata.datasetVersion,
         build,
         league,
         shields,
@@ -137,6 +140,7 @@ export function MetaMatchupPage() {
           title="Matriz contra el Meta"
           description="Compara un build contra un fixture local mediante el motor determinístico 1v1 de ArenaGuide."
         />
+        <CompetitiveDataVersion />
         <Button asChild variant="secondary" className="w-full sm:w-auto">
           <Link href="/meta/team">Analizar cobertura del equipo</Link>
         </Button>

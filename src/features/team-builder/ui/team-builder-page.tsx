@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useTeamBuilder } from "../hooks/use-team-builder";
 import { TeamSlotEditor } from "./team-slot-editor";
 import { TeamSummary } from "./team-summary";
+import { CompetitiveDataVersion } from "@/features/competitive-data/components/competitive-data-version";
 
 export function TeamBuilderPage() {
   const { team, issues, isValid, isHydrated, updateBuild, clearTeam } =
@@ -31,6 +32,7 @@ export function TeamBuilderPage() {
             title="Team Builder"
             description="Configura tres Pokémon con IV, nivel y movimientos legales desde el catálogo de ArenaGuide."
           />
+          <CompetitiveDataVersion />
           <Button variant="secondary" onClick={clearTeam}>
             <RotateCcw className="size-4" />
             Limpiar equipo

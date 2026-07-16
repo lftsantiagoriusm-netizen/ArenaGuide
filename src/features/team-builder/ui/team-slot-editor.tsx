@@ -7,6 +7,7 @@ import type {
   ValidationIssue,
 } from "../domain/types";
 import { NumberField } from "./number-field";
+import { BuildCpSummary } from "@/features/competitive-data/components/build-cp-summary";
 
 const pokemonCatalog = getAllPokemon();
 
@@ -139,6 +140,7 @@ export function TeamSlotEditor({
             onChange={(value) => update("staminaIv", value)}
           />
         </div>
+        <BuildCpSummary build={build} />
         <div className="grid gap-4 sm:grid-cols-3">
           <Select
             label="Movimiento rápido"

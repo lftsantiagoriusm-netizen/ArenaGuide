@@ -1,5 +1,6 @@
 import { getLegalMoves, getPokemonById } from "@/features/pokedex";
 import type { League } from "@/features/pokedex";
+import { resolveCompetitiveBuild } from "@/features/competitive-data";
 import type {
   PokemonBuild,
   Team,
@@ -148,6 +149,18 @@ export const validateBuild = (
         "chargedMove2Id",
       ),
     );
+
+  if (issues.length === 0) {
+    const resolved = resolveCompetitiveBuild(build);
+    if (!resolved.ok && resolved.error.code === "over-cp-limit")
+      issues.push(
+        issue(resolved.error.message, "cp-over-limit", resolved.error.field),
+      );
+    else if (!resolved.ok)
+      issues.push(
+        issue(resolved.error.message, "competitive-data", resolved.error.field),
+      );
+  }
 
   return issues;
 };

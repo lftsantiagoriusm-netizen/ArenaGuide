@@ -232,3 +232,24 @@ test("rejects an illegal move through the Pokédex adapter", () => {
   );
   assert.equal(adapted.pokemon, null);
 });
+
+test("rejects an over-cap build through the Pokédex adapter", () => {
+  const adapted = adaptBuildToBattlePokemon(
+    {
+      pokemonId: "feraligatr",
+      formId: "feraligatr-standard",
+      league: "great",
+      attackIv: 15,
+      defenseIv: 15,
+      staminaIv: 15,
+      level: 50,
+      fastMoveId: "shadow-claw",
+      chargedMove1Id: "hydro-cannon",
+      chargedMove2Id: "ice-beam",
+      shields: 1,
+    },
+    "great",
+  );
+  assert.equal(adapted.pokemon, null);
+  assert.match(adapted.error ?? "", /CP/i);
+});

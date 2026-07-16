@@ -10,6 +10,7 @@ import type {
   ValidationIssue,
 } from "@/features/team-builder";
 import type { BATTLE_ENGINE_VERSION } from "@/features/battle-simulator";
+import type { CompetitiveDatasetVersion } from "@/features/competitive-data";
 
 export type TeamCoverageClassification =
   "covered" | "uncertain" | "critical" | "invalid";
@@ -108,6 +109,7 @@ export interface TeamCoverageValidation {
 export interface StoredTeamCoverage {
   readonly schemaVersion: 1;
   readonly engineVersion: BattleEngineVersion;
+  readonly competitiveDataVersion: CompetitiveDatasetVersion;
   readonly metaVersion: MetaDatasetVersion;
   readonly computedAt: string;
   readonly teamFingerprint: string;

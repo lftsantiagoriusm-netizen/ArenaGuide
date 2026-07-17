@@ -61,7 +61,16 @@ export function BattleResultCard({
                   </div>
                   <div>
                     <dt>Daño</dt>
-                    <dd className="text-foreground">{state.totalDamage}</dd>
+                    <dd className="text-foreground">
+                      {result.damage[id].total} ({result.damage[id].fast} R ·{" "}
+                      {result.damage[id].charged} C)
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Etapas Atq / Def</dt>
+                    <dd className="text-foreground">
+                      {state.statStages.attack} / {state.statStages.defense}
+                    </dd>
                   </div>
                   <div>
                     <dt>Escudos</dt>
@@ -81,6 +90,24 @@ export function BattleResultCard({
               </div>
             );
           })}
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <h2 className="font-semibold">Evidencia de efectos</h2>
+        </CardHeader>
+        <CardContent className="text-muted-foreground grid gap-2 text-sm">
+          {result.timeline.filter(({ effect }) => effect).length ? (
+            result.timeline
+              .filter(({ effect }) => effect)
+              .map((item, index) => (
+                <p key={`${item.turn}-${item.moveId}-${index}`}>
+                  T{item.turn} · {item.message}
+                </p>
+              ))
+          ) : (
+            <p>No se activaron efectos de etapas en este combate.</p>
+          )}
         </CardContent>
       </Card>
       <Card>

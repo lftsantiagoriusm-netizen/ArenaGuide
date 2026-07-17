@@ -2,6 +2,7 @@ import { Database, ShieldCheck } from "lucide-react";
 import {
   competitiveDataMetadata,
   competitiveMoveDatasetMetadata,
+  competitiveMoveEffectDatasetMetadata,
 } from "../index";
 
 export function CompetitiveDataVersion() {
@@ -18,9 +19,11 @@ export function CompetitiveDataVersion() {
           </p>
           <p className="text-xs leading-5 opacity-85">
             CP {competitiveDataMetadata.datasetVersion} · movimientos PvP{" "}
-            {competitiveMoveDatasetMetadata.datasetVersion}. Los parámetros de
-            movimientos usan una revisión local documentada; los efectos
-            secundarios todavía no se simulan.
+            {competitiveMoveDatasetMetadata.datasetVersion} · efectos
+            determinísticos{" "}
+            {competitiveMoveEffectDatasetMetadata.datasetVersion}. Los efectos
+            con probabilidad inferior al 100% se identifican, pero no se
+            simulan.
           </p>
           <p className="flex items-center gap-1.5 text-xs opacity-75">
             <Database className="size-3" aria-hidden="true" />

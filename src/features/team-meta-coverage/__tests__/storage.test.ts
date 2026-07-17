@@ -5,6 +5,7 @@ import { metaDataset } from "@/features/meta-matchups";
 import {
   competitiveDataMetadata,
   competitiveMoveDatasetMetadata,
+  competitiveMoveEffectDatasetMetadata,
 } from "@/features/competitive-data";
 import { summarizeTeamCoverage } from "../domain/coverage";
 import {
@@ -31,6 +32,8 @@ const storedFixture = (): StoredTeamCoverage => {
     metaVersion: metaDataset.version,
     competitiveDataVersion: competitiveDataMetadata.datasetVersion,
     competitiveMoveDataVersion: competitiveMoveDatasetMetadata.datasetVersion,
+    competitiveMoveEffectDataVersion:
+      competitiveMoveEffectDatasetMetadata.datasetVersion,
   });
   return {
     schemaVersion: 1,
@@ -38,6 +41,8 @@ const storedFixture = (): StoredTeamCoverage => {
     metaVersion: metaDataset.version,
     competitiveDataVersion: competitiveDataMetadata.datasetVersion,
     competitiveMoveDataVersion: competitiveMoveDatasetMetadata.datasetVersion,
+    competitiveMoveEffectDataVersion:
+      competitiveMoveEffectDatasetMetadata.datasetVersion,
     computedAt: "2026-07-16T00:00:00.000Z",
     teamFingerprint,
     compatibilityKey,
@@ -118,6 +123,14 @@ describe("team coverage persistence", () => {
     parsed.competitiveMoveDataVersion = "arena-competitive-moves-v999";
     assert.equal(parseStoredCoverageResult(JSON.stringify(parsed)), null);
   });
+  test("discards incompatible competitiveMoveEffectDataVersion", () => {
+    const parsed = JSON.parse(
+      serializeStoredCoverage(storedFixture()),
+    ) as Record<string, unknown>;
+    parsed.competitiveMoveEffectDataVersion =
+      "arena-competitive-move-effects-v999";
+    assert.equal(parseStoredCoverageResult(JSON.stringify(parsed)), null);
+  });
   test("rejects another team fingerprint", () =>
     assert.equal(isStoredCoverageCompatible(storedFixture(), "other"), false));
   test("rejects another league", () => {
@@ -130,6 +143,8 @@ describe("team coverage persistence", () => {
       metaVersion: metaDataset.version,
       competitiveDataVersion: competitiveDataMetadata.datasetVersion,
       competitiveMoveDataVersion: competitiveMoveDatasetMetadata.datasetVersion,
+      competitiveMoveEffectDataVersion:
+        competitiveMoveEffectDatasetMetadata.datasetVersion,
     });
     assert.equal(isStoredCoverageCompatible(fixture, key), false);
   });
@@ -143,6 +158,8 @@ describe("team coverage persistence", () => {
       metaVersion: metaDataset.version,
       competitiveDataVersion: competitiveDataMetadata.datasetVersion,
       competitiveMoveDataVersion: competitiveMoveDatasetMetadata.datasetVersion,
+      competitiveMoveEffectDataVersion:
+        competitiveMoveEffectDatasetMetadata.datasetVersion,
     });
     assert.equal(isStoredCoverageCompatible(fixture, key), false);
   });

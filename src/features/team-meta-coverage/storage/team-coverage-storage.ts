@@ -4,6 +4,7 @@ import type { League } from "@/features/pokedex";
 import {
   competitiveDataMetadata,
   competitiveMoveDatasetMetadata,
+  competitiveMoveEffectDatasetMetadata,
 } from "@/features/competitive-data";
 import type {
   StoredTeamCoverage,
@@ -60,6 +61,8 @@ export const parseStoredCoverageResult = (
       value.competitiveDataVersion !== competitiveDataMetadata.datasetVersion ||
       value.competitiveMoveDataVersion !==
         competitiveMoveDatasetMetadata.datasetVersion ||
+      value.competitiveMoveEffectDataVersion !==
+        competitiveMoveEffectDatasetMetadata.datasetVersion ||
       value.metaVersion !== metaDataset.version ||
       typeof value.computedAt !== "string" ||
       typeof value.teamFingerprint !== "string" ||
@@ -89,6 +92,8 @@ export const isStoredCoverageCompatible = (
   stored.competitiveDataVersion === competitiveDataMetadata.datasetVersion &&
   stored.competitiveMoveDataVersion ===
     competitiveMoveDatasetMetadata.datasetVersion &&
+  stored.competitiveMoveEffectDataVersion ===
+    competitiveMoveEffectDatasetMetadata.datasetVersion &&
   stored.metaVersion === metaDataset.version &&
   stored.compatibilityKey === compatibilityKey &&
   stored.result !== null &&

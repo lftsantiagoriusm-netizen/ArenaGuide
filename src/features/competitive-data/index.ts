@@ -1,5 +1,10 @@
 export { competitiveDataMetadata } from "./data/competitive-dataset";
 export { competitiveMoveDatasetMetadata } from "./data/competitive-move-metadata";
+export { competitiveMoveEffectDatasetMetadata } from "./data/competitive-move-effect-metadata";
+export {
+  competitiveMoveEffects,
+  getCompetitiveMoveEffect,
+} from "./data/competitive-move-effects.data";
 export {
   competitiveChargedMoves,
   competitiveFastMoves,
@@ -63,3 +68,19 @@ export type {
   ResolveCompetitiveMoveErrorCode,
   ResolveCompetitiveMoveResult,
 } from "./domain/competitive-move-types";
+export {
+  changeStatStage,
+  clampStatStage,
+  getStatStageMultiplier,
+  INITIAL_STAT_STAGES,
+  MAX_STAT_STAGE,
+  MIN_STAT_STAGE,
+} from "./domain/stat-stages";
+export type { BattleStat, StatStage, StatStages } from "./domain/stat-stages";
+export type {
+  CompetitiveMoveEffect,
+  CompetitiveMoveEffectDataVersion,
+  CompetitiveMoveEffectMetadata,
+  MoveEffectSupport,
+  MoveEffectTarget,
+} from "./domain/competitive-move-effect-types";

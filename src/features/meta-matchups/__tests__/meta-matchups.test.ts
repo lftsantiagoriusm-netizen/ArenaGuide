@@ -24,6 +24,7 @@ import type { MatchupSimulationResult, MatrixSettings } from "../domain/types";
 import {
   competitiveDataMetadata,
   competitiveMoveDatasetMetadata,
+  competitiveMoveEffectDatasetMetadata,
 } from "@/features/competitive-data";
 
 const analyzedBuild: BattleBuild = {
@@ -58,6 +59,7 @@ const fakeSimulation = (
     fastMovesUsed: 1,
     chargedMovesUsed: 1,
     shieldsUsed: 0,
+    statStages: { attack: 0 as const, defense: 0 as const },
   });
   return {
     winner,
@@ -68,6 +70,10 @@ const fakeSimulation = (
     remainingHpPercent: { a: hpA, b: hpB },
     certainty: "deterministic",
     explanation: [],
+    damage: {
+      a: { fast: 0, charged: 0, total: 0 },
+      b: { fast: 0, charged: 0, total: 0 },
+    },
   };
 };
 const result = (
@@ -265,6 +271,8 @@ describe("settings persistence", () => {
     version: 1,
     competitiveDataVersion: competitiveDataMetadata.datasetVersion,
     competitiveMoveDataVersion: competitiveMoveDatasetMetadata.datasetVersion,
+    competitiveMoveEffectDataVersion:
+      competitiveMoveEffectDatasetMetadata.datasetVersion,
     build: analyzedBuild,
     league: "great",
     shields: 1,
@@ -294,6 +302,15 @@ describe("settings persistence", () => {
       unknown
     >;
     parsed.competitiveMoveDataVersion = "arena-competitive-moves-v999";
+    assert.equal(deserializeMatrixSettings(JSON.stringify(parsed)), null);
+  });
+  test("discards settings from another competitive move effect dataset", () => {
+    const parsed = JSON.parse(serializeMatrixSettings(settings)) as Record<
+      string,
+      unknown
+    >;
+    parsed.competitiveMoveEffectDataVersion =
+      "arena-competitive-move-effects-v999";
     assert.equal(deserializeMatrixSettings(JSON.stringify(parsed)), null);
   });
 });

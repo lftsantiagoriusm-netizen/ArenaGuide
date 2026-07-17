@@ -1,4 +1,4 @@
-import { getCompetitiveMoveById } from "../index";
+import { getCompetitiveMoveById, getCompetitiveMoveEffect } from "../index";
 
 interface Props {
   readonly fastMoveId: string;
@@ -22,14 +22,24 @@ export function CompetitiveMoveSummary({ fastMoveId, chargedMoveIds }: Props) {
         </p>
       ) : null}
       {charged.map((move) =>
-        move?.category === "charged" ? (
-          <p key={move.id}>
-            {move.name}: {move.power} poder · {move.energyCost} energía
-            {move.verificationStatus === "source-conflict"
-              ? " · fuente con discrepancia documentada"
-              : ""}
-          </p>
-        ) : null,
+        move?.category === "charged"
+          ? (() => {
+              const effect = getCompetitiveMoveEffect(move.id);
+              return (
+                <p key={move.id}>
+                  {move.name}: {move.power} poder · {move.energyCost} energía
+                  {effect?.support === "deterministic"
+                    ? ` · efecto 100%: ${effect.target === "self" ? "propio" : "rival"} ${effect.stat} ${effect.stages > 0 ? "+" : ""}${effect.stages}`
+                    : effect
+                      ? " · efecto probabilístico no modelado"
+                      : ""}
+                  {move.verificationStatus === "source-conflict"
+                    ? " · fuente con discrepancia documentada"
+                    : ""}
+                </p>
+              );
+            })()
+          : null,
       )}
     </div>
   );

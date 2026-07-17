@@ -5,6 +5,7 @@ import { BATTLE_ENGINE_VERSION } from "@/features/battle-simulator";
 import {
   competitiveDataMetadata,
   competitiveMoveDatasetMetadata,
+  competitiveMoveEffectDatasetMetadata,
 } from "@/features/competitive-data";
 import { getMetaEntriesByLeague, metaDataset } from "@/features/meta-matchups";
 import type { League } from "@/features/pokedex";
@@ -54,6 +55,8 @@ export function useTeamMetaCoverage() {
         competitiveDataVersion: competitiveDataMetadata.datasetVersion,
         competitiveMoveDataVersion:
           competitiveMoveDatasetMetadata.datasetVersion,
+        competitiveMoveEffectDataVersion:
+          competitiveMoveEffectDatasetMetadata.datasetVersion,
       }),
     [fingerprint, league, shields],
   );
@@ -75,6 +78,8 @@ export function useTeamMetaCoverage() {
       metaVersion: metaDataset.version,
       competitiveDataVersion: competitiveDataMetadata.datasetVersion,
       competitiveMoveDataVersion: competitiveMoveDatasetMetadata.datasetVersion,
+      competitiveMoveEffectDataVersion:
+        competitiveMoveEffectDatasetMetadata.datasetVersion,
     });
     setTeam(restoredTeam);
     setLeague(restoredLeague);
@@ -96,6 +101,8 @@ export function useTeamMetaCoverage() {
       metaVersion: metaDataset.version,
       competitiveDataVersion: competitiveDataMetadata.datasetVersion,
       competitiveMoveDataVersion: competitiveMoveDatasetMetadata.datasetVersion,
+      competitiveMoveEffectDataVersion:
+        competitiveMoveEffectDatasetMetadata.datasetVersion,
       computedAt,
       teamFingerprint: fingerprint,
       compatibilityKey,

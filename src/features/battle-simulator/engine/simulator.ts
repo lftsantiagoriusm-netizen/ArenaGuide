@@ -6,7 +6,16 @@ import type {
   SimulationConfig,
   SimulationResult,
 } from "../domain/types";
+import {
+  createBattleSnapshot,
+  summarizeBattleDamage,
+} from "../domain/evidence";
 import { calculateDamage } from "./damage";
+import {
+  changeStatStage,
+  getCompetitiveMoveEffect,
+  getStatStageMultiplier,
+} from "@/features/competitive-data";
 
 const MAX_ENERGY = 100;
 const DEFAULT_MAX_TURNS = 500;
@@ -27,6 +36,7 @@ const createState = (
   fastMovesUsed: 0,
   chargedMovesUsed: 0,
   shieldsUsed: 0,
+  statStages: { attack: 0, defense: 0 },
 });
 
 const event = (
@@ -34,8 +44,13 @@ const event = (
   type: BattleEvent["type"],
   actor: CombatantId,
   message: string,
-  details: Pick<BattleEvent, "target" | "moveId" | "amount"> = {},
+  details: Omit<BattleEvent, "turn" | "type" | "actor" | "message"> = {},
 ): BattleEvent => ({ turn, type, actor, message, ...details });
+
+const snapshot = (first: CombatantState, second: CombatantState) =>
+  first.id === "a"
+    ? createBattleSnapshot(first, second)
+    : createBattleSnapshot(second, first);
 
 const affordableCharged = (state: CombatantState): BattleMove | undefined =>
   state.pokemon.chargedMoves.find(
@@ -46,9 +61,109 @@ export const compareChargedPriority = (
   a: CombatantState,
   b: CombatantState,
 ): CombatantId => {
-  if (a.pokemon.stats.attack === b.pokemon.stats.attack)
+  const attackA =
+    a.pokemon.stats.attack * getStatStageMultiplier(a.statStages.attack);
+  const attackB =
+    b.pokemon.stats.attack * getStatStageMultiplier(b.statStages.attack);
+  if (attackA === attackB)
     return a.pokemon.id.localeCompare(b.pokemon.id) <= 0 ? "a" : "b";
-  return a.pokemon.stats.attack > b.pokemon.stats.attack ? "a" : "b";
+  return attackA > attackB ? "a" : "b";
+};
+
+const resolveMoveEffect = (
+  turn: number,
+  attacker: CombatantState,
+  defender: CombatantState,
+  move: BattleMove,
+  timeline: BattleEvent[],
+): void => {
+  const effect = getCompetitiveMoveEffect(move.id);
+  if (!effect) return;
+  const target = effect.target === "self" ? attacker : defender;
+  const before = snapshot(attacker, defender);
+  if (effect.support !== "deterministic" || effect.probability !== 1) {
+    timeline.push(
+      event(
+        turn,
+        "move_effect_rejected",
+        attacker.id,
+        `${move.name}: efecto probabilístico no modelado.`,
+        {
+          target: target.id,
+          moveId: move.id,
+          before,
+          after: before,
+          effect: {
+            moveId: move.id,
+            target: target.id,
+            stat: effect.stat,
+            requestedStages: effect.stages,
+            appliedStages: 0,
+            support: effect.support,
+            reason:
+              effect.support === "probabilistic"
+                ? "probabilistic"
+                : "unsupported",
+          },
+        },
+      ),
+    );
+    return;
+  }
+  const changed = changeStatStage(
+    target.statStages,
+    effect.stat,
+    effect.stages,
+  );
+  if (changed.appliedDelta === 0) {
+    timeline.push(
+      event(
+        turn,
+        "move_effect_rejected",
+        attacker.id,
+        `${move.name}: ${effect.stat} ya está en su límite.`,
+        {
+          target: target.id,
+          moveId: move.id,
+          before,
+          after: before,
+          effect: {
+            moveId: move.id,
+            target: target.id,
+            stat: effect.stat,
+            requestedStages: effect.stages,
+            appliedStages: 0,
+            support: effect.support,
+            reason: "stage-limit",
+          },
+        },
+      ),
+    );
+    return;
+  }
+  target.statStages = changed.stages;
+  timeline.push(
+    event(
+      turn,
+      "move_effect_applied",
+      attacker.id,
+      `${move.name} cambió ${effect.stat} ${changed.appliedDelta > 0 ? "+" : ""}${changed.appliedDelta}.`,
+      {
+        target: target.id,
+        moveId: move.id,
+        before,
+        after: snapshot(attacker, defender),
+        effect: {
+          moveId: move.id,
+          target: target.id,
+          stat: effect.stat,
+          requestedStages: effect.stages,
+          appliedStages: changed.appliedDelta,
+          support: effect.support,
+        },
+      },
+    ),
+  );
 };
 
 const resolveCharged = (
@@ -61,6 +176,7 @@ const resolveCharged = (
 ): void => {
   const cost = Math.abs(move.energyDelta);
   if (attacker.energy < cost || attacker.hp <= 0 || defender.hp <= 0) return;
+  const beforeEnergy = snapshot(attacker, defender);
   attacker.energy -= cost;
   attacker.chargedMovesUsed += 1;
   timeline.push(
@@ -71,8 +187,21 @@ const resolveCharged = (
       `${attacker.pokemon.name} usó ${move.name}.`,
       { target: defender.id, moveId: move.id },
     ),
+    event(
+      turn,
+      "energy_spent",
+      attacker.id,
+      `${attacker.pokemon.name} gastó ${cost} de energía.`,
+      {
+        moveId: move.id,
+        amount: cost,
+        before: beforeEnergy,
+        after: snapshot(attacker, defender),
+      },
+    ),
   );
   if (config.shieldStrategy.shouldShield(defender, move)) {
+    const beforeShield = snapshot(attacker, defender);
     defender.shields -= 1;
     defender.shieldsUsed += 1;
     timeline.push(
@@ -81,12 +210,22 @@ const resolveCharged = (
         "shield_used",
         defender.id,
         `${defender.pokemon.name} utilizó un escudo.`,
-        { target: attacker.id, moveId: move.id },
+        {
+          target: attacker.id,
+          moveId: move.id,
+          before: beforeShield,
+          after: snapshot(attacker, defender),
+        },
       ),
     );
+    resolveMoveEffect(turn, attacker, defender, move, timeline);
     return;
   }
-  const { damage } = calculateDamage(attacker.pokemon, defender.pokemon, move);
+  const beforeDamage = snapshot(attacker, defender);
+  const { damage } = calculateDamage(attacker.pokemon, defender.pokemon, move, {
+    attacker: attacker.statStages,
+    defender: defender.statStages,
+  });
   defender.hp = Math.max(0, defender.hp - damage);
   attacker.totalDamage += damage;
   timeline.push(
@@ -95,9 +234,17 @@ const resolveCharged = (
       "damage_applied",
       attacker.id,
       `${move.name} causó ${damage} de daño.`,
-      { target: defender.id, moveId: move.id, amount: damage },
+      {
+        target: defender.id,
+        moveId: move.id,
+        amount: damage,
+        damageCategory: "charged",
+        before: beforeDamage,
+        after: snapshot(attacker, defender),
+      },
     ),
   );
+  resolveMoveEffect(turn, attacker, defender, move, timeline);
 };
 
 const resolveFast = (
@@ -116,11 +263,11 @@ const resolveFast = (
       { target: defender.id, moveId: move.id },
     ),
   );
-  const damage = calculateDamage(
-    attacker.pokemon,
-    defender.pokemon,
-    move,
-  ).damage;
+  const damage = calculateDamage(attacker.pokemon, defender.pokemon, move, {
+    attacker: attacker.statStages,
+    defender: defender.statStages,
+  }).damage;
+  const beforeEnergy = snapshot(attacker, defender);
   attacker.energy = Math.min(MAX_ENERGY, attacker.energy + move.energyDelta);
   attacker.fastMovesUsed += 1;
   attacker.cooldown = Math.max(1, move.turns);
@@ -137,7 +284,12 @@ const resolveFast = (
       "energy_gained",
       attacker.id,
       `${attacker.pokemon.name} ganó ${move.energyDelta} de energía.`,
-      { moveId: move.id, amount: move.energyDelta },
+      {
+        moveId: move.id,
+        amount: move.energyDelta,
+        before: beforeEnergy,
+        after: snapshot(attacker, defender),
+      },
     ),
   );
   if (affordableCharged(attacker))
@@ -181,6 +333,10 @@ const finish = (
       "El combate terminó.",
     ),
   );
+  const damageSummary = {
+    a: summarizeBattleDamage(timeline, "a"),
+    b: summarizeBattleDamage(timeline, "b"),
+  };
   return {
     winner,
     loser,
@@ -194,6 +350,7 @@ const finish = (
     certainty: "deterministic",
     explanation,
     ...(error ? { error } : {}),
+    damage: damageSummary,
   };
 };
 
@@ -245,8 +402,10 @@ export const simulateBattle = (config: SimulationConfig): SimulationResult => {
       const damageB = b.cooldown <= 0 ? resolveFast(turn, b, a, timeline) : 0;
       a.cooldown = Math.max(0, a.cooldown - 1);
       b.cooldown = Math.max(0, b.cooldown - 1);
+      const beforeFastDamage = snapshot(a, b);
       a.hp = Math.max(0, a.hp - damageB);
       b.hp = Math.max(0, b.hp - damageA);
+      const afterFastDamage = snapshot(a, b);
       a.totalDamage += damageA;
       b.totalDamage += damageB;
       if (damageA)
@@ -256,7 +415,14 @@ export const simulateBattle = (config: SimulationConfig): SimulationResult => {
             "damage_applied",
             "a",
             `${a.pokemon.fastMove.name} causó ${damageA} de daño.`,
-            { target: "b", amount: damageA },
+            {
+              target: "b",
+              moveId: a.pokemon.fastMove.id,
+              amount: damageA,
+              damageCategory: "fast",
+              before: beforeFastDamage,
+              after: afterFastDamage,
+            },
           ),
         );
       if (damageB)
@@ -266,7 +432,14 @@ export const simulateBattle = (config: SimulationConfig): SimulationResult => {
             "damage_applied",
             "b",
             `${b.pokemon.fastMove.name} causó ${damageB} de daño.`,
-            { target: "a", amount: damageB },
+            {
+              target: "a",
+              moveId: b.pokemon.fastMove.id,
+              amount: damageB,
+              damageCategory: "fast",
+              before: beforeFastDamage,
+              after: afterFastDamage,
+            },
           ),
         );
     }
